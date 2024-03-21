@@ -35,9 +35,14 @@ class Installer
         $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
         $wpCliCommand = $isWindows ? 'php vendor/bin/wp' : 'vendor/bin/wp';
         $wpCliInfo = shell_exec($wpCliCommand . ' --info');
+        $wpCliGlobalInfo = shell_exec('wp --info');
+
+
+        // Check for WP-CLI locally or globally
+        echo "Checking for WP-CLI...\n";
 
         // Check for WP-CLI locally
-        if (empty($wpCliInfo)) {
+        if (empty($wpCliInfo) OR empty($wpCliGlobalInfo)) {
             // If not found locally, check globally (especially for Unix-like systems)
             echo "WP-CLI is not installed. Would you like to install it now? (y/n): ";
             $handle = fopen("php://stdin", "r");
@@ -60,18 +65,36 @@ class Installer
     {
         echo "Installing WP-CLI...\n";
 
+        $wpCliPhar = 'wp-cli.phar';
+        $downloadUrl = 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar';
+
         if ($isWindows) {
-            // For Windows, download the wp-cli.phar file and create a batch script to execute it
-            file_put_contents("wp-cli.phar", fopen("https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar", 'r'));
-            $batContent = "@ECHO OFF\nphp \"%~dp0wp-cli.phar\" %*\n";
-            file_put_contents("wp.bat", $batContent);
-            echo "WP-CLI installed successfully for Windows.\n";
+            // Handle Windows-specific installation steps
         } else {
-            // For Unix-like systems, download the Phar file and make it executable
-            shell_exec("curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar");
-            shell_exec("chmod +x wp-cli.phar");
-            shell_exec("sudo mv wp-cli.phar /usr/local/bin/wp");
-            echo "WP-CLI installed successfully for Unix-like systems.\n";
+            // Attempt to download the WP-CLI Phar file
+            $downloaded = file_put_contents($wpCliPhar, fopen($downloadUrl, 'r'));
+            if ($downloaded === false) {
+                echo "Error: Failed to download WP-CLI. Please ensure you have internet access and the necessary permissions.\n";
+                return;  // Exit the function early
+            }
+
+            // Attempt to make the Phar file executable
+            if (!chmod($wpCliPhar, 0755)) {
+                echo "Error: Failed to make WP-CLI executable. Check your permissions on the current directory with 'ls -ld .'\n";
+                unlink($wpCliPhar);  // Clean up the downloaded file
+                return;
+            }
+
+            // Attempt to move the Phar file to a global location
+            $moveCommand = "sudo mv $wpCliPhar /usr/local/bin/wp";
+            exec($moveCommand, $output, $returnVar);
+            if ($returnVar !== 0) {  // Check if the command was successful
+                echo "Error: Failed to move WP-CLI to a global location. You might need to run the script with elevated permissions (sudo).\n";
+                unlink($wpCliPhar);  // Clean up the downloaded file
+                return;
+            }
+
+            echo "WP-CLI installed successfully.\n";
         }
     }
 
