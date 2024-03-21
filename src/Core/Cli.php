@@ -4,6 +4,7 @@
 namespace Miyamoto\Core;
 
 use Miyamoto\Config\DotenvManager;
+use Miyamoto\IO\Streams\Input;
 use Miyamoto\Setup\Installer;
 use Miyamoto\User\UserManager;
 
@@ -32,17 +33,25 @@ class Cli
     protected DotenvManager $dotenvManager;
 
     /**
+     * Input
+     *
+     * @var Input
+     */
+    protected Input $input;
+
+    /**
      * Constructor
      *
      * @param UserManager $userManager
      * @param Installer $installer
      * @param DotenvManager $dotenvManager
      */
-	public function __construct(UserManager $userManager, Installer $installer, DotenvManager $dotenvManager)
+	public function __construct(UserManager $userManager, Installer $installer, DotenvManager $dotenvManager, Input $input)
 	{
 		$this->userManager = $userManager;
 		$this->installer = $installer;
         $this->dotenvManager = $dotenvManager;
+        $this->input = $input;
 	}
 
 	public function run()
@@ -56,6 +65,11 @@ class Cli
 			case 'install':
 				$this->install();
 				break;
+            case 'create':
+                $userName = $args[1] ?? null;
+                $domainName = $args[2] ?? null;
+                $this->createUser($userName, $domainName);
+                break;
 			case 'user':
 				$username = $args[1] ?? null;
 				$this->userManager->createUser($username);
@@ -81,11 +95,28 @@ class Cli
 		$this->installer->run();
 	}
 
-	protected function createSite($args): void
+	protected function createUser(string $userName, string $domainName): void
     {
-		// Extract and validate arguments like USER and SITE
-		// Implement the logic to create directories, set up environments, etc.
-		echo "Creating site...\n";
+		// Prompt for USER & DOMAIN NAME
+        $userName = $this->input->read("Enter username: ");
+        $domainName = $this->input->read("Enter domain name: ");
+
+        // Define the user's home directory
+        $userHomeDir = __DIR__ . "/../../web/sites/$userName/$domainName";
+
+        // Create the user's home directory
+        if(!file_exists($userHomeDir)) {
+            mkdir($userHomeDir, 0750, true);
+            echo "Directory created: $userHomeDir\n";
+        } else {
+            echo "Directory already exists: $userHomeDir\n";
+        }
+
+        // Initialize the .env file with USER & DOMAIN NAME
+        $content = "USER=$userName\n
+                    DOMAIN=$domainName";
+        file_put_contents("$userHomeDir/.env", $content);
+        echo ".env file initialized in $userHomeDir\n";
 	}
 
     protected function setEnv($key, $value): void

@@ -30,6 +30,8 @@ composer.dev.lock
 
 # Setup Scripts
 
+# Ignore environment file
+.env
 
 /.idea
 

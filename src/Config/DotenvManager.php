@@ -3,7 +3,7 @@
 namespace Miyamoto\Config;
 
 use Dotenv\Repository\RepositoryBuilder;
-use Miyamoto\IO\Streams\{Input, Output};
+use Miyamoto\IO\ConsoleFacade;
 // External dependencies
 use Dotenv\Dotenv;
 
@@ -16,18 +16,11 @@ class DotenvManager
     protected Dotenv $dotenv;
 
     /**
-     * Input stream class.
+     * ConsoleFacade
      *
-     * @var Input $input
+     * @var ConsoleFacade $consoleFacade
      */
-    protected Input $input;
-
-    /**
-     * Output stream class.
-     *
-     * @var Output $output
-     */
-    protected Output $output;
+    protected ConsoleFacade $consoleFacade;
 
     /**
      * The .env file path.
@@ -39,15 +32,13 @@ class DotenvManager
     /**
      * Constructor.
      *
-     * @param Input $input
-     * @param Output $output
+     * @param ConsoleFacade $consoleFacade
      * @param string $envDirPath
      */
-    public function __construct(string $envDirPath, Input $input, Output $output)
+    public function __construct(string $envDirPath, ConsoleFacade $consoleFacade)
     {
         $this->envDirPath = $envDirPath;
-        $this->input = $input;
-        $this->output = $output;
+        $this->consoleFacade = $consoleFacade;
 
         // Initialize Dotenv with immutable repository.
         $repository = RepositoryBuilder::createWithNoAdapters()
@@ -95,7 +86,7 @@ class DotenvManager
     {
         foreach ($requiredInput as $key) {
             if (empty($this->get($key))) {
-                $value = $this->input->read("Enter value for {$key}: ");
+                $value = $this->consoleFacade->prompt("Enter value for {$key}: ");
                 $this->update($key, $value);
             }
         }
@@ -114,7 +105,7 @@ class DotenvManager
         $content = file_exists($this->envDirPath) ? file_get_contents($this->envDirPath) : '';
 
         if ($content === false) {
-            $this->output->write("Error reading .env file.", ['newline' => true]);
+            $this->consoleFacade->inform("Error reading .env file.", ['newline' => true]);
             return;
         }
 
@@ -130,7 +121,7 @@ class DotenvManager
         }
 
         if (file_put_contents($this->envDirPath, $content) === false) {
-            $this->output->write("Error writing to .env file.", ['newline' => true]);
+            $this->consoleFacade->inform("Error writing to .env file.", ['newline' => true]);
         }
     }
 
