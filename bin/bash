@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Adding 'miya' alias to your .bashrc"
+echo "alias miya='${__DIR__}/miya'" >> ~/.bashrc
+source ~/.bashrc

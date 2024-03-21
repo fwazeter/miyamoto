@@ -61,14 +61,14 @@ class Installer
 		echo "All dependencies are met.\n";
 	}
 
-    protected function installWpCli($isWindows)
+    protected function installWpCli($isWindows): void
     {
         echo "Installing WP-CLI...\n";
 
         $wpCliPhar = 'wp-cli.phar';
         $downloadUrl = 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar';
 
-        if ($isWindows) {
+        if($isWindows) {
             // Handle Windows-specific installation steps
         } else {
             // Attempt to download the WP-CLI Phar file
