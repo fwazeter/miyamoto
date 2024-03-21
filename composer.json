@@ -1,0 +1,17 @@
+{
+  "name": "fwazeter/miyamoto",
+  "description": "CLI for WordPress Multi Tenant environment",
+  "version": "0.0.1",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "league/container": "^4.2.1",
+    "vlucas/phpdotenv": "5.*",
+    "wp-cli/wp-cli": "^2.10"
+  },
+  "autoload": {
+    "psr-4": {
+      "Miyamoto\\": "src/"
+    }
+  }
+}

@@ -1,0 +1,36 @@
+# Composer files
+auth.json
+composer.lock
+composer.dev.json
+composer.dev.lock
+
+# WordPress
+/app/*
+/config/*
+/vendor
+/assets/db.php
+/assets/drop-ins/*
+/assets/mu-plugins/*
+/assets/plugins/*
+/assets/themes/*
+
+# Core Config Files
+!/_example
+!/app/wp-config.php
+!/assets/drop-ins/.gitkeep
+
+# Core Config Files
+!/config/.env.example
+!/config/.htaccess-standard
+!/config/.htaccess-multisite
+!/config/config.sh
+!/config/wp-constants.php
+!/config/wp-env.php
+!/config/wp-cli.yml
+
+# Setup Scripts
+
+
+/.idea
+
+/vendor/
