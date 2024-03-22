@@ -30,6 +30,10 @@ composer.dev.lock
 
 # Setup Scripts
 
+# Internal Experiments.
+/src/Contracts/Maybe/
+/tools
+/src/Archive
 # Ignore environment file
 .env
 
