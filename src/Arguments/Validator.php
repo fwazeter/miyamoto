@@ -6,7 +6,7 @@ namespace Miyamoto\Arguments;
 
 class Validator implements ValidatorInterface
 {
-	public function validate ( mixed $value, callable $criteria ): bool
+	public function validate ( mixed $value ): bool
 	{
 		return $criteria( $value );
 	}
